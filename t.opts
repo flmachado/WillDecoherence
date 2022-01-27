@@ -1,0 +1,10 @@
+tau,0.25
+tauC,1000
+tauPi,0.04
+eps,15
+ppmP1,10
+ppmNV,2
+K,25
+cycles,100
+L,4
+outDir,./output/
