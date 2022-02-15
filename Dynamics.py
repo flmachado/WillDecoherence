@@ -8,7 +8,7 @@ import numpy as np
 from dynamite import config
 
 from dynamite.states import State
-from dynamite.operators import sigmax, sigmay, sigmaz, indentity, index_sum, index_product, op_sum
+from dynamite.operators import sigmax, sigmay, sigmaz, identity, index_sum, index_product, op_sum
 from dynamite.computations import entanglement_entropy
 
 from numpy import ceil, abs, real
@@ -104,17 +104,17 @@ def evolutionOverACycle(s, vecT, tau, tauC, tauPi,  eps, Bs, Hdip):
     for i in range(NNVs):
         Bs[:,i] = Bs[:,i] * flip
     
-    H1 = Hdip + op_sum([np.sum(Bs[:,i])*(0.5*identity() + sigmaz(i)) for i in range(NNVs)])
+    H1 = Hdip + op_sum([np.sum(Bs[:,i])*(0.5*identity() - 0.5*sigmaz(i)) for i in range(NNVs)])
     
     flip = (-1)**(np.random.rand(NP1s) < tauPi*(1+eps)/tauC)
     for i in range(NNVs):
         Bs[:,i] = Bs[:,i] * flip
-    HMid =  Hrot + Hdip + op_sum([np.sum(Bs[:,i])**(0.5*identity() + sigmaz(i)) for i in range(NNVs)])
+    HMid =  Hrot + Hdip + op_sum([np.sum(Bs[:,i])*(0.5*identity() - 0.5*sigmaz(i)) for i in range(NNVs)])
 
     flip = (-1)**(np.random.rand(NP1s) < tau/tauC)
     for i in range(NNVs):
         Bs[:,i] = Bs[:,i] * flip
-    H2 = Hdip + op_sum([np.sum(Bs[:,i])*(0.5*identity() + sigmaz(i)) for i in range(NNVs)])
+    H2 = Hdip + op_sum([np.sum(Bs[:,i])*(0.5*identity() - 0.5*sigmaz(i)) for i in range(NNVs)])
 
     H1.evolve(s, tau, result=vecT)
     HMid.evolve(vecT, tauPi*(1+eps), result = s)
@@ -162,7 +162,7 @@ def DynamiteAvg(tau, tauC, tauPi, eps, ppmP1, ppmNV, K, cycles):
                 Jij =  2*np.pi * 52 / r**3 * (1-3*C**2) 
                 #print(i, o, Jij)
 
-                Hdip += Jij * ( sigmax(i)*sigmax(o) + sigmay(i)*sigmay(o) - (0.5*identity() + sigmaz(i)) * (0.5*identity() + sigmaz(o)) ) 
+                Hdip += Jij * ( 0.25*(sigmax(i)*sigmax(o) + sigmay(i)*sigmay(o)) - (0.5*identity() - 0.5*sigmaz(i)) * (0.5*identity() - 0.5*sigmaz(o)) ) 
         #print(Hdip)
         SpinFlip = index_product(sigmay())
 
@@ -220,7 +220,7 @@ data = DynamiteAvg(
   params["tauPi"],
   params["eps"],
   params["ppmP1"],
-  params["ppmNV"],
+  params["ppmNV"]/4,
   params["K"],
   cycles = params["cycles"])
 
