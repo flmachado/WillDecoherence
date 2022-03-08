@@ -30,6 +30,8 @@ config.shell = True
 from petsc4py.PETSc import Viewer
 from petsc4py.PETSc import Vec
 
+def NVz(i):
+    return 0.5 * (sigmaz(i) - identity())
 
 
 def Bis(rsP1s, rsNVs):
@@ -43,7 +45,7 @@ def Bis(rsP1s, rsNVs):
             dr = rsNVs[:,i] - rsP1s[:,o]
             r = np.linalg.norm(dr)
             C = dr[2] / r 
-            B[o,i] = (2*np.pi) * 52 / (r**3) * (1 - 3*C**2)
+            B[o,i] = - (2*np.pi) * 52 / (r**3) * (3*C**2-1)
     return B
 
 
@@ -93,31 +95,31 @@ def PlaceNVsAndP1s(NVs, ppmP1, ppmNV):
     
     return rsNVs, rsP1s
 
-def evolutionOverACycle(s, vecT, tau, tauC, tauPi,  eps, Bs, Hdip):
+def evolutionOverACycle(s, vecT, tau, tauC, tauPi,  eps, eps_tau, eps_stability, eps_spatial, Bs, Hdip):
     
     NP1s, NNVs = np.shape(Bs)
     
-    OmegaRabi = (PI/2) / tauPi
+    OmegaRabi = (PI/2) / tauPi * (1+eps_stability)*(1+eps_spatial)
     Hrot = OmegaRabi * index_sum(sigmay())
     
     flip = (-1)**(np.random.rand(NP1s) < tau/tauC)
     for i in range(NNVs):
         Bs[:,i] = Bs[:,i] * flip
     
-    H1 = Hdip + op_sum([np.sum(Bs[:,i])*(0.5*identity() - 0.5*sigmaz(i)) for i in range(NNVs)])
+    H1 = Hdip + op_sum([np.sum(Bs[:,i])*NVz(i) for i in range(NNVs)])
     
-    flip = (-1)**(np.random.rand(NP1s) < tauPi*(1+eps)/tauC)
+    flip = (-1)**(np.random.rand(NP1s) < tauPi*(1+eps_tau+eps)/tauC)
     for i in range(NNVs):
         Bs[:,i] = Bs[:,i] * flip
-    HMid =  Hrot + Hdip + op_sum([np.sum(Bs[:,i])*(0.5*identity() - 0.5*sigmaz(i)) for i in range(NNVs)])
+    HMid =  Hrot + Hdip + op_sum([np.sum(Bs[:,i])*NVz(i) for i in range(NNVs)])
 
     flip = (-1)**(np.random.rand(NP1s) < tau/tauC)
     for i in range(NNVs):
         Bs[:,i] = Bs[:,i] * flip
-    H2 = Hdip + op_sum([np.sum(Bs[:,i])*(0.5*identity() - 0.5*sigmaz(i)) for i in range(NNVs)])
+    H2 = Hdip + op_sum([np.sum(Bs[:,i])*NVz(i) for i in range(NNVs)])
 
     H1.evolve(s, tau, result=vecT)
-    HMid.evolve(vecT, tauPi*(1+eps), result = s)
+    HMid.evolve(vecT, tauPi*(1+eps_tau+eps), result = s)
     H2.evolve(s, tau, result=vecT)
     
     s = vecT.copy()
@@ -153,18 +155,18 @@ def DynamiteAvg(tau, tauC, tauPi, eps, ppmP1, ppmNV, K, cycles):
 #         print(rsNVs)
         Hdip = 0.0 * sigmax(0)
         #print(rsNVs[:,3])
-        # Dipolar Piece
+        # Dipolar Piece        
         for i in range(NNVs):
             for o in range(i+1, NNVs):
                 dr = rsNVs[:,i] - rsNVs[:,o]
                 r = np.linalg.norm(dr)
                 C = dr[2] / r 
-                Jij =  2*np.pi * 52 / r**3 * (1-3*C**2) 
+                Jij =  2*np.pi * 52 / r**3 * (3*C**2-1) 
                 #print(i, o, Jij)
 
-                Hdip += Jij * ( 0.25*(sigmax(i)*sigmax(o) + sigmay(i)*sigmay(o)) - (0.5*identity() - 0.5*sigmaz(i)) * (0.5*identity() - 0.5*sigmaz(o)) ) 
+                Hdip += Jij * ( 0.25*(sigmax(i)*sigmax(o) + sigmay(i)*sigmay(o)) - NVz(i) * NVz(o) ) 
         #print(Hdip)
-        SpinFlip = index_product(sigmay())
+        #SpinFlip = index_product(sigmay())
 
         
         Bs = Bis(rsP1s, rsNVs) # Compute the interactions between the different fields
@@ -177,9 +179,16 @@ def DynamiteAvg(tau, tauC, tauPi, eps, ppmP1, ppmNV, K, cycles):
         for l in range(L):
             S[0, k, l] += real( s.dot(sigmay(l).dot(s,vecT)) )
 
+        eps_tau =  0.25/40 *(0.5 - np.random.rand() )
+        eps_spatial = 0.05 * np.random.randn()
+        eps_stability = 0.025 * np.random.randn()
+
+        print("eps_tau: ", eps_tau)
+        print("eps_spatial: ", eps_spatial)
+        print("eps_stability: ", eps_stability)
 
         for i in range(1, cycles):
-            s, Bs = evolutionOverACycle(s, vecT, tau, tauC, tauPi, eps, Bs, Hdip)
+            s, Bs = evolutionOverACycle(s, vecT, tau, tauC, tauPi, eps, eps_tau, eps_stability, eps_spatial, Bs, Hdip)
             for l in range(L):
         #         print(s.dot(sigmay(l).dot(s,vecT)))
                 S[i, k,l] += real( s.dot(sigmay(l).dot(s,vecT)) ) 
