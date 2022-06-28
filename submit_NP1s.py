@@ -63,13 +63,14 @@ options = {
 
     'run_options' : {
         "tau": "0.25",
-        "tauC": [str(i) for i in [2.5, 5.0, 10.0, 25.0, 50.0, 75.0, 100.0, 150.0]],
+        "tauC": [str(i) for i in [ 300.0, 600, 1000, 1500]],
         "tauPi": "0.04",
         "eps" : [str(i) for i in [0., 0.05,  0.1 ,  0.15,  0.2 ,  0.25, 0.3 ,  0.35,  0.4 ,  0.45,  0.5 ,  0.55,  0.6 ] ],
-        #"ppmP1": [ "26", "28", "30","32"], # "8", "12", "16", "18", "20", "22", "24",
+        "ppmP1": [ str(i) for i in [8, 12, 16, 18, 20, 22, 24, 26, 28, 32]], # ,
         #"ppmNV": [str(i) for i in [0.05, 0.1, 0.15, 0.2, 0.3,  0.4, 0.8, 1.2, 1.6, 2.0, 2.4, 2.2, 2.6, 2.8, 3.0]],
-        "ppmNV": [str(i) for i in [0.05, 0.1, 0.15, 0.2, 0.3,  0.4, 0.8, 1.2, 1.6, 2.0, 2.4, 2.2, 2.6, 2.8, 3.0, 3.4, 3.8, 4.2, 4.8]],
-        "ppmP1": [ "8", "12", "16", "18", "20", "22", "24", "26", "28", "30","32"], #
+        #"ppmNV": [str(i) for i in [ 0.4, 0.8, 1.2, 1.6, 2.0,2.4, 2.8, 3.4, 4.2]],
+        "ppmNV": [str(i) for i in [0.05, 0.1, 0.15, 0.2, 0.3, 0.4, 0.8, 1.2, 1.6, 2.0, 2.4, 2.2, 2.6, 2.8, 3.0, 3.4, 3.8, 4.2, 4.8]],
+        #"ppmP1": [str(i) for i in []], #
         #"ppmNV": [str(i) for i in []],
         "K": "4000",
         "cycles":"100",
@@ -132,7 +133,7 @@ for opt,val in d['batch_options'].items():
 batch_script += "\n\n"
 batch_script += "module load gcc openmpi\n"
 batch_script += "source /n/home08/gdmeyer/dynamite/activate_cpu64.sh\n"
-batch_script += "mpirun -n 1 python -u /n/home03/fmachado/WillsCoherence/WillDecoherence/Dynamics.py "
+batch_script += "mpirun -n 1 python -u /n/home03/fmachado/WillsCoherence/WillDecoherence/DynamicsNP1s.py "
 batch_script += path.join(OUTPUT_DIR,'${SLURM_ARRAY_TASK_ID}.opts')
 
 if '-dry-run' in argv:
