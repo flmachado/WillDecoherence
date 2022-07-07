@@ -22,7 +22,6 @@ from math import sin
 from GetTauC import GetTauC, EstimateGammaD, A
 
 PI = 3.14159265359
-NP1sStart = 250
 
 import time
 
@@ -107,6 +106,7 @@ def evolutionOverACycle(s, vecT, tau, tauCs, tauPi,  eps, eps_tau, eps_stability
 def DynamiteAvg(tau, tauPi, eps, ppmP1, ppmNV, K, cycles): 
     print("tau: ",tau)
     print("eps: ", eps)
+    print("NP1sStart: ", NP1sStart)
     S = np.zeros( (cycles, K, L) )
     
     print("K = ", K)
@@ -206,6 +206,8 @@ print("Saving to: ", outFile)
 ### PREPARE INITIAL STATE
 L = params["L"]
 config.L = L
+
+NP1sStart = np.max([250, int(3*4*params["ppmP1"] / params["ppmNV"])])
 
 data = DynamiteAvg(
   params["tau"],
