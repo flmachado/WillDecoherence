@@ -10,11 +10,11 @@ def Cij(rsP1s, i, j):
     r = np.linalg.norm(dr)
     nz = dr[2]/r
     
-    return A/r**3 * (1-2*nz**2), A/r**3 * 0.5*(1-0.25*(1-nz**2) )
-
+    return A/r**3 * (1-3*nz**2), A/r**3 * 0.25*(3*nz**2-1)
+  
 
 def EstimateGammaD(ppm):
-    FittedCoeff = 0.061
+    FittedCoeff = 0.025 # +- 0.001
     return FittedCoeff*ppm
 
 def GetTauC(rsP1s, GammaD):
