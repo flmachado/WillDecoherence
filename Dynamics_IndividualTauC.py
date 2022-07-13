@@ -190,7 +190,7 @@ params = {}
 
 for line in opts:
   vals = line.split(",")
-  if vals[0] == 'K' or vals[0] == "L" or vals[0]=="cycles":
+  if vals[0] == 'K' or vals[0] == "L" or vals[0]=="cycles" or vals[0] == "rep":
     params[vals[0]] = int(vals[1]) 
   elif vals[0] == "outDir":
     params[vals[0]] = (vals[1].split())[0]
@@ -198,7 +198,7 @@ for line in opts:
     params[vals[0]] = float(vals[1])
 
 outFile = params["outDir"] + "/Bauch_CMPG_"
-for k in ["cycles", "K", "tau", "tauPi",  "eps", "ppmNV", "ppmP1"]:
+for k in ["cycles", "K", "tau", "tauPi",  "eps", "ppmNV", "ppmP1", "rep"]:
   outFile += k + "_" + str(params[k]) + "__"
 outFile += ".npy"
 print("Saving to: ", outFile)
