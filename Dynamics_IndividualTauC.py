@@ -29,6 +29,7 @@ config.initialize(gpu=False, slepc_args=['-mfn_ncv','18'])
 #config.initialize(slepc_args=['-mfn_ncv','40'])
 config.shell = True
 
+NP1MAX = 2500
 
 from petsc4py.PETSc import Viewer
 from petsc4py.PETSc import Vec
@@ -126,9 +127,22 @@ def DynamiteAvg(tau, tauPi, eps, ppmP1, ppmNV, K, cycles):
 
         rsNVs = PlaceDefects(ppmNV, NNVs, includeOrigin = True)
         rsP1s = PlaceDefects(ppmP1, NP1sStart, includeOrigin = False)
-        
+
+        #If the number of P1s is too large (making the simulation run very slowly, keep only the 2k P1s that are closer to the NVs
+        print("Placed P1s")
+        if NP1sStart > NP1MAX:
+            dists = np.zeros( (NNVs, NP1sStart) )
+            for i in range(NNVs):
+                print("Dists: ", i)
+                t_ = np.subtract(rsP1s, np.transpose([rsNVs[:,i]]))
+                dists[i,:]=np.linalg.norm(t_, axis=0)
+            dists = np.min(dists, axis = 0)
+            sorting_array = np.argsort(dists)
+            rsP1s = rsP1s[:,sorting_array[:NP1MAX]] # At most keep the closest 2.5k P1s to any one NV
+        print(rsP1s.shape)
         # Get the individual tauC from the distribution from Eichhorn et al paper
         #tauCs = [ GetTauC(np.random.rand(), tauCMean) for i in range(NP1s)]
+        print("Computing TauC")
         tauCs, to_remove = GetTauC(rsP1s, EstimateGammaD(ppmP1) )
         #print(tauCs)
         print(len(tauCs))
