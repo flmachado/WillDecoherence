@@ -58,8 +58,13 @@ def PlaceNVsAndP1s(NVs, ppmP1, ppmNV):
     if ppmP1 > 0:
         NtotP1s = 10*NP1s
         dens = 8 * 10**(-6) * ppmP1 / (a0**3)  
-        L = (NtotP1s/dens)**(1.0/3.0)
-
+        L = (NtotP1s/dens)**(1.0/3.0) # WKS, 7/27/22: Should there be a factor of 0.55/sqrt(3)~0.3 here? If I understand correctly, you are using the average spacing between spins
+                                      # = 0.55/density^1/3 to get the dimensions for the box you populate with the spins below. But since the average spacing
+                                      # is 0.55/density^1/3, the average distance in each dimension should be reduced by 1/sqrt(3)? Making this correction would
+                                      # effectively increase the density for the same input parameters you have now, meaning you would need to input a lower density
+                                      # to observe the same dynamics. Could this be part of the discrepency we discussed in our meeting on 7/26? Though if my
+                                      # numbers are correct, this would give a factor of 3 change in density, which isn't quite the discrepency we got from DEER measurements.
+                                      # Would also change the NV density below... if I'm thinking about this correctly...
 #         print(L)
 
 
