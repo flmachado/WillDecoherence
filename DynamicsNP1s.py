@@ -59,7 +59,6 @@ def PlaceNVsAndP1s(NVs, ppmP1, ppmNV):
         NtotP1s = 10*NP1s
         dens = 8 * 10**(-6) * ppmP1 / (a0**3)  
         L = (NtotP1s/dens)**(1.0/3.0)
-
 #         print(L)
 
 
