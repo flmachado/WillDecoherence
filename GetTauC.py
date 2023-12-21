@@ -17,14 +17,18 @@ def EstimateGammaD(ppm):
     FittedCoeff = 0.025 # +- 0.001
     return FittedCoeff*ppm
 
-def GetTauC(rsP1s, GammaD):
+def GetTauC(rsP1s, GammaD, nuclear="Spin1"):
     NP1s = np.shape(rsP1s)[1]
     randomState = 0.5 * (-1)**(np.random.rand(NP1s) < 0.5)
 
     # Compute the local Magnetic field from a random state to estimate the tau_c
     Bis = np.zeros(NP1s)
-    for i in range(NP1s): 
-      Bis[i] += np.random.choice([-120, -90, 0, 90, 120], p=[1.0/12, 1.0/4, 1.0/3, 1.0/4, 1.0/12])
+    if nuclear == "Spin1":
+      for i in range(NP1s): 
+        Bis[i] += np.random.choice([-120, -90, 0, 90, 120], p=[1.0/12, 1.0/4, 1.0/3, 1.0/4, 1.0/12])
+    elif nuclear == "Spin1/2":
+      for i in range(NP1s): 
+        Bis[i] += np.random.choice([-78, -60, 60, 78], p=[1.0/8, 3.0/8, 3.0/8, 1.0/8])       
       
     Omega = np.zeros((NP1s,NP1s) )
     for i in range(NP1s):

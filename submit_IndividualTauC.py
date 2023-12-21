@@ -53,7 +53,7 @@ options = {
         '-p':'serial_requeue',
         '-n':'1',
         '-N':'1',
-        '-t':'0-06:00:00',
+        '-t':'0-12:00:00',
         '--mem-per-cpu':'2G',
         '--account':'yao_lab',
         '--contiguous':'',
@@ -61,18 +61,28 @@ options = {
         '--requeue':'',
     },
 
+    #(2.4, 26.0)
+    #(1.2, 20.0)
+    #(0.8, 18.0)
+
     'run_options' : {
         "tau": "0.25",
         "tauPi": "0.04",
         "eps" : [str(i) for i in [-0.6, -0.55, -0.5, -0.45, -0.4, -0.35, -0.3, -0.25, -0.2, -0.15, -0.1, -0.05, 0.0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6]],
-        "ppmP1": [ str(i) for i in [10.0, 12.0, 14.0,  16.0, 18.0, 20.0, 22.0, 24.0, 26.0, 28.0, 30.0]], # ,
-        "ppmNV": [str(i) for i in [0.05, 0.1, 0.2, 0.4, 0.8, 1.2, 1.6, 1.8, 2.0, 2.2, 2.4, 2.6, 2.8, 3.0]],
-        "K": "500",
+
+        # "ppmP1" : ['14.0', '15.0', '16.0', '17.0', '18.0', '19.0', '20.0', '21.0'],
+        # "ppmNV" : ['2.6', '2.7', '2.8', '2.9', '3.0'],
+
+        # "ppmP1" : [ "24.0", '25.0'], 
+        # "ppmNV" : ['0.1', '0.2', '0.3', '0.4', "0.5", "0.6", "0.7", "0.8", "0.9", "1.0", "1.1", "1.2", "1.3", "1.4", "1.5", "1.6", "1.7"],
+
+        "ppmP1" : [ "21.0", '22.0', "23.0"], 
+        "ppmNV" : ['0.1', '0.2', '0.3', '0.4'],
+        "K": "5000",
         "cycles":"100",
         "L" : "5",
-        "rep" : [str(i) for i in range(2)]
+        "rep" : [str(i) for i in range(50,51)]
 
-        
     }
 }
 
@@ -129,7 +139,7 @@ for opt,val in d['batch_options'].items():
 batch_script += "\n\n"
 batch_script += "module load gcc openmpi\n"
 batch_script += "source /n/home08/gdmeyer/dynamite/activate_cpu64.sh\n"
-batch_script += "mpirun -n 1 python -u /n/home03/fmachado/WillsCoherence/WillDecoherence/Dynamics_IndividualTauC.py "
+batch_script += "mpirun -n 1 python -u /n/home03/fmachado/WillsCoherence/WillDecoherence/Dynamics_IndTauC_SpinHalf.py "
 batch_script += path.join(OUTPUT_DIR,'${SLURM_ARRAY_TASK_ID}.opts')
 
 if '-dry-run' in argv:
